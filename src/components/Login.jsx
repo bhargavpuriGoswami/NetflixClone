@@ -6,9 +6,40 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [passwordIcon, setPasswordIcon] = useState(hidePaddwordIcon);
     const [formState, setFormState] = useState("Sign in");
+    const [error, setError] = useState("");
     const email = useRef(null);
     const password = useRef(null);
     const name = useRef(null);
+
+    const validate=()=>{
+        if(formState === "Sign up"){
+            if(name.current.value === ""){
+                setError("Please enter your name");
+                return false;
+            }
+        }
+        if(!email.current.value.length == 0){
+            const phonePattern =/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
+            const emailPattern =/^(\D)+(\w)*((\.(\w)+)?)+@(\D)+(\w)*((\.(\D)+(\w)*)+)?(\.)[a-z]{2,}$/;
+            if(emailPattern.test(email.current.value) || phonePattern.test(email.current.value)){
+                if(password.current.value.length < 8){
+                    setError("Password should be at least 8 characters long");
+                    return false;
+                }
+                setError("");
+                return true;
+            }
+            else{
+                setError("Please enter a valid email or phone number");
+                return false;
+            }
+        }
+        else{
+            console.log(email.current.value);
+            setError("Please enter your email or phone number");
+            return false;
+        }
+    }
 
     const toggleShowPassword = () => {
         setShowPassword(!showPassword);
@@ -21,21 +52,25 @@ const Login = () => {
     const toggleFormState = () => {
         if (formState === "Sign in") {
             setFormState("Sign up");
+            setError("");
         }
         else{
             setFormState("Sign in");
+            setError("");
         }
     };  
 
+
+
     const handleSubmit=()=>{
-        if(formState === "Sign in"){
-            console.log(email.current.value);
-            console.log(password.current.value);
-        }
-        else{
-            console.log(name.current.value);
-            console.log(email.current.value);
-            console.log(password.current.value);
+        const isValid = validate();
+        if(isValid){
+            console.log("Valid");
+            document.getElementsByClassName("email")[0].value="";
+            document.getElementsByClassName("password")[0].value="";
+            if(formState === "Sign up"){
+                document.getElementsByClassName("name")[0].value="";
+            }
         }
     }
     
@@ -50,12 +85,13 @@ const Login = () => {
                 </div>
                 <div className="relative z-10 px-16 py-10 w-1/4 h-2/3">
                     <h1 className="text-3xl text-white mb-5">{formState}</h1>
-                    {formState === "Sign up" && <input ref={name} className=" h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Enter your name"/>}
-                    <input ref={email} className=" h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Email or phone number"/>
+                    {formState === "Sign up" && <input ref={name} className=" name h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Enter your name"/>}
+                    <input ref={email} className="email h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Email or phone number"/>
                     <div className="relative h-12 my-2 w-full rounded-md bg-zinc-800 flex items-center">
-                        <input ref={password} className="h-full w-11/12 p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type={showPassword ? "text" : "password"} placeholder="Password" />
+                        <input ref={password} className="password h-full w-11/12 p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type={showPassword ? "text" : "password"} placeholder="Password" />
                         <img className=" h-1/2 absolute right-2 cursor-pointer bg-white rounded-3xl" src={passwordIcon} alt="Password Icon" onClick={toggleShowPassword} />
                     </div>
+                    <p className="mt-2 px-1 bg-white rounded text-red-600 text-sm font-bold">{error}</p>
                     <button className="h-12 mt-8 w-full p-2 rounded-md bg-red-600" onClick={handleSubmit}>{formState}</button>
                     <div className=" mt-1">
                         <input type="checkbox" className="hover:cursor-pointer accent-red-600 mr-1 " />
