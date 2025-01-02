@@ -2,6 +2,7 @@ import Header from './Header.jsx';
 import hidePaddwordIcon from '../assets/hidePassword.png'
 import showPasswordIcon from '../assets/showPassword.png'
 import { useState, useRef } from 'react';
+import { validateLogin, validateSignup } from '../utils/validate.js';
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [passwordIcon, setPasswordIcon] = useState(hidePaddwordIcon);
@@ -9,37 +10,8 @@ const Login = () => {
     const [error, setError] = useState("");
     const email = useRef(null);
     const password = useRef(null);
-    const name = useRef(null);
+    const name = useRef("");
 
-    const validate=()=>{
-        if(formState === "Sign up"){
-            if(name.current.value === ""){
-                setError("Please enter your name");
-                return false;
-            }
-        }
-        if(!email.current.value.length == 0){
-            const phonePattern =/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
-            const emailPattern =/^(\D)+(\w)*((\.(\w)+)?)+@(\D)+(\w)*((\.(\D)+(\w)*)+)?(\.)[a-z]{2,}$/;
-            if(emailPattern.test(email.current.value) || phonePattern.test(email.current.value)){
-                if(password.current.value.length < 8){
-                    setError("Password should be at least 8 characters long");
-                    return false;
-                }
-                setError("");
-                return true;
-            }
-            else{
-                setError("Please enter a valid email or phone number");
-                return false;
-            }
-        }
-        else{
-            console.log(email.current.value);
-            setError("Please enter your email or phone number");
-            return false;
-        }
-    }
 
     const toggleShowPassword = () => {
         setShowPassword(!showPassword);
@@ -63,15 +35,22 @@ const Login = () => {
 
 
     const handleSubmit=()=>{
-        const isValid = validate();
-        if(isValid){
+        let returnedError = null;
+        if(formState === "Sign up"){
+            returnedError=validateSignup(email.current.value, password.current.value, name.current.value);
+        }
+        else{
+            returnedError= validateLogin(email.current.value, password.current.value) ;
+        }
+        if(returnedError === null){
             console.log("Valid");
             document.getElementsByClassName("email")[0].value="";
             document.getElementsByClassName("password")[0].value="";
             if(formState === "Sign up"){
-                document.getElementsByClassName("name")[0].value="";
+            document.getElementsByClassName("name")[0].value="";
             }
         }
+        setError(returnedError);
     }
     
 
