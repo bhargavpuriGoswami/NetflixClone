@@ -3,6 +3,8 @@ import hidePaddwordIcon from '../assets/hidePassword.png'
 import showPasswordIcon from '../assets/showPassword.png'
 import { useState, useRef } from 'react';
 import { validateLogin, validateSignup } from '../utils/validate.js';
+import {auth} from '../utils/firebase.js';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [passwordIcon, setPasswordIcon] = useState(hidePaddwordIcon);
@@ -34,16 +36,51 @@ const Login = () => {
 
 
 
-    const handleSubmit=()=>{
+    const handleSubmit=async ()=>{
         let returnedError = null;
         if(formState === "Sign up"){
             returnedError=validateSignup(email.current.value, password.current.value, name.current.value);
+            if(returnedError != null){
+                setError(returnedError);
+                return; 
+            }    
+            await createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+                .then((userCredential) => {
+                    // Signed up 
+                    const user = userCredential.user;
+                    console.log(user);
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    returnedError= errorMessage;
+                    if(errorCode === "auth/email-already-in-use"){
+                        returnedError= "Email already in use";
+                    }
+                });
         }
         else{
             returnedError= validateLogin(email.current.value, password.current.value) ;
+            if(returnedError != null){
+                setError(returnedError);
+                return;
+            } 
+            await signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+            .then((userCredential) => {
+              // Signed in
+                const user = userCredential.user;
+                console.log(user);
+              // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                if(errorCode === "auth/invalid-credential"){
+                    returnedError= "Invalid credentials";
+                }
+            });
         }
         if(returnedError === null){
-            console.log("Valid");
             document.getElementsByClassName("email")[0].value="";
             document.getElementsByClassName("password")[0].value="";
             if(formState === "Sign up"){
@@ -60,9 +97,9 @@ const Login = () => {
         <div className="w-full h-full">
             <Header />
             <div className=" w-11/12 mx-auto h-5/6 flex justify-center items-center relative">
-                <div className="absolute z-0 rounded-2xl p-16 w-1/4 h-2/3 bg-black opacity-80">
+                <div className="absolute z-0 rounded-2xl p-16 w-1/4 h-2/3 xl:h-4/5 xl:w-2/4 bg-black opacity-80">
                 </div>
-                <div className="relative z-10 px-16 py-10 w-1/4 h-2/3">
+                <div className="relative z-10 px-16 py-10 w-1/4 xl:h-4/5 xl:w-2/4 h-2/3">
                     <h1 className="text-3xl text-white mb-5">{formState}</h1>
                     {formState === "Sign up" && <input ref={name} className=" name h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Enter your name"/>}
                     <input ref={email} className="email h-12 my-2 w-full p-2 rounded-md bg-zinc-800 placeholder-zinc-500 focus:outline-none text-zinc-400" type="text" placeholder="Email or phone number"/>

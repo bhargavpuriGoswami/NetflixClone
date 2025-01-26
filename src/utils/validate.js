@@ -6,7 +6,7 @@ const validateLogin = (email,password) => {
         const emailPattern =/^(\D)+(\w)*((\.(\w)+)?)+@(\D)+(\w)*((\.(\D)+(\w)*)+)?(\.)[a-z]{2,}$/;
         if(emailPattern.test(email) || phonePattern.test(email)){
             if(password.length < 8){
-                return "Password should be at least 8 characters long";
+                return "Password must be at least 8 characters long";
             }
             return null;
         }

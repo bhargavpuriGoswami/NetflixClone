@@ -1,9 +1,21 @@
 import { useState } from 'react';
 import Login from './components/Login.jsx';
 import Test from './components/Test.jsx';
+import { createBrowserRouter } from 'react-router-dom';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const appRoutes = createBrowserRouter(
+    [
+      {
+        path: "/",
+        element: <Login />,
+      },
+      {
+        path: "/test",
+        element: <Test />,
+      },
+    ]
+  );
 
   return (
     <>
@@ -17,8 +29,6 @@ function App() {
           <Login />
         </div>
       </div>
-
-      
     </>
   )
 }
